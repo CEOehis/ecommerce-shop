@@ -1,0 +1,25 @@
+{
+  "name": "ecommerce-shop",
+  "version": "1.0.0",
+  "description": "e-commerce application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/CEOehis/ecommerce-shop.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "nodejs",
+    "express",
+    "caching"
+  ],
+  "author": "Celestine Ekoh-Ordan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CEOehis/ecommerce-shop/issues"
+  },
+  "homepage": "https://github.com/CEOehis/ecommerce-shop#readme"
+}
