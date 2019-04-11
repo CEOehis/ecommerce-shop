@@ -4,6 +4,10 @@ import winston from 'winston';
 import morgan from 'morgan';
 import log from 'fancy-log';
 
+import db from './database/models';
+
+db.sequelize.sync();
+
 const app = express();
 app.use(morgan('dev'));
 app.use(
