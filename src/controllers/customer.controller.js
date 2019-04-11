@@ -1,4 +1,5 @@
 import { Customer } from '../database/models';
+import Token from '../utils/token';
 
 class CustomerController {
   static async create(req, res, next) {
@@ -14,10 +15,12 @@ class CustomerController {
     }
     try {
       const customer = await Customer.create(req.body);
+      const token = Token.generateToken(customer);
       const { password, ...data } = customer.dataValues;
       return res.status(201).json({
         status: true,
         customer: data,
+        token,
       });
     } catch (e) {
       return next(e);

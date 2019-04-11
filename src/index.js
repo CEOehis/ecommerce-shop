@@ -21,7 +21,10 @@ app.use(expressValidator());
 app.use(
   expressWinston.logger({
     transports: [new winston.transports.Console()],
-    format: winston.format.combine(winston.format.colorize(), winston.format.json()),
+    meta: false,
+    expressFormat: true,
+    colorize: true,
+    format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
   })
 );
 
@@ -30,7 +33,10 @@ app.use(router);
 app.use(
   expressWinston.errorLogger({
     transports: [new winston.transports.Console()],
-    format: winston.format.combine(winston.format.colorize(), winston.format.json()),
+    meta: false,
+    expressFormat: true,
+    colorize: true,
+    format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
   })
 );
 
