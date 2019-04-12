@@ -26,6 +26,36 @@ class CustomerController {
       return next(e);
     }
   }
+
+  static async login(req, res, next) {
+    const { email, password } = req.body;
+    try {
+      const foundCustomer = await Customer.findOne({
+        where: {
+          email,
+        },
+      });
+      if (foundCustomer) {
+        const isValid = await foundCustomer.validatePassword(password);
+        if (isValid) {
+          const token = Token.generateToken(foundCustomer);
+          // eslint-disable-next-line no-shadow
+          const { password, ...data } = foundCustomer.dataValues;
+          return res.status(200).json({
+            status: true,
+            customer: data,
+            token,
+          });
+        }
+      }
+      return res.status(401).json({
+        status: true,
+        message: 'Invalid email or password',
+      });
+    } catch (e) {
+      return next(e);
+    }
+  }
 }
 
 export default CustomerController;

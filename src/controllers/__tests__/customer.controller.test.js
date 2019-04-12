@@ -28,7 +28,7 @@ describe('customer controller', () => {
   describe('create user', () => {
     it('should successfully register a new user', done => {
       request(app)
-        .post('/api/v1/auth/signup')
+        .post('/api/v1/customers')
         .set('Content-Type', 'application/json')
         .send({
           name: 'new user',
@@ -45,7 +45,7 @@ describe('customer controller', () => {
 
     it('should return error if email already exists in database', done => {
       request(app)
-        .post('/api/v1/auth/signup')
+        .post('/api/v1/customers')
         .send({
           name: 'Test user',
           password: 'password',
@@ -59,7 +59,7 @@ describe('customer controller', () => {
     });
     it('should return error if email is invalid', done => {
       request(app)
-        .post('/api/v1/auth/signup')
+        .post('/api/v1/customers')
         .send({
           name: 'Test user',
           password: 'password',
@@ -68,6 +68,49 @@ describe('customer controller', () => {
         .end((error, res) => {
           expect(res.status).toEqual(422);
           expect(res.body.errors).toHaveProperty('email');
+          done();
+        });
+    });
+  });
+
+  describe('login', () => {
+    it('should successfully login a registered user', done => {
+      request(app)
+        .post('/api/v1/customers/login')
+        .send({
+          password: 'password',
+          email: 'testuser@mail.com',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body.customer).toHaveProperty('email');
+          expect(res.body).toHaveProperty('token');
+          done();
+        });
+    });
+    it('should send error if user supplies the wrong email', done => {
+      request(app)
+        .post('/api/v1/customers/login')
+        .send({
+          password: 'password',
+          email: 'wrongemail@mail.com',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(401);
+          expect(res.body.message).toEqual('Invalid email or password');
+          done();
+        });
+    });
+    it('should send error if user supplies the wrong password', done => {
+      request(app)
+        .post('/api/v1/customers/login')
+        .send({
+          password: 'invalidpassword',
+          email: 'testuser@mail.com',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(401);
+          expect(res.body.message).toEqual('Invalid email or password');
           done();
         });
     });

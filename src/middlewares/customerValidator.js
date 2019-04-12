@@ -30,6 +30,27 @@ class CustomerValidator {
 
     return next();
   }
+
+  static validateLogin(req, res, next) {
+    req
+      .checkBody('email', 'Please provide your registered email')
+      .notEmpty()
+      .trim()
+      .isEmail()
+      .withMessage('Email provided is not valid');
+
+    req
+      .checkBody('password', 'Password is required')
+      .notEmpty()
+      .len({ min: 6 })
+      .withMessage('Password cannot be less that 6 characters');
+
+    if (req.validationErrors()) {
+      return ErrorHandler.validationErrorHandler(req, res);
+    }
+
+    return next();
+  }
 }
 
 export default CustomerValidator;
