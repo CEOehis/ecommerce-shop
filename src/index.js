@@ -40,11 +40,42 @@ app.use(
   })
 );
 
+// error handlers
+const isProduction = process.env.NODE_ENV === 'production';
+// development error handler
+// will print stacktrace
+if (!isProduction) {
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+    log(err.stack);
+    res.status(err.status || 500).json({
+      error: {
+        message: err.message,
+        error: err,
+      },
+      status: false,
+    });
+  });
+}
+
+// production error handler
+// no stacktraces leaked to user
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  // eslint-disable-line no-unused-vars
+  return res.status(err.status || 500).json({
+    error: {
+      message: err.message,
+      error: {},
+    },
+    status: false,
+  });
+});
+
 // configure port and listen for requests
 const port = parseInt(process.env.NODE_ENV === 'test' ? 8378 : process.env.PORT, 10) || 5000;
-const server = app.listen(port, () => {
+export const server = app.listen(port, () => {
   log(`Server is running on http://localhost:${port} 🚀🚀🚀`);
 });
 
 export default app;
-exports.server = server;

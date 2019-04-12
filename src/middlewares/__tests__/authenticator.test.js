@@ -20,7 +20,7 @@ describe('authenticator middleware', () => {
       req.headers = {};
       const nextSpy = jest.fn();
       authenticateUser(req, res, nextSpy);
-      expect(nextSpy.mock.calls[0][0].message).toBe('no token provided');
+      expect(nextSpy.mock.calls[0][0].message).toBe('No token provided');
     });
 
     it('should call next() with an error if token not supplied as Bearer', () => {

@@ -56,6 +56,22 @@ class CustomerController {
       return next(e);
     }
   }
-}
 
+  static async getCustomerProfile(req, res, next) {
+    const { customerId } = req;
+    try {
+      const customer = await Customer.findByPk(customerId, {
+        attributes: {
+          exclude: ['password', 'credit_card'],
+        },
+      });
+      return res.status(200).json({
+        status: true,
+        customer,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+}
 export default CustomerController;

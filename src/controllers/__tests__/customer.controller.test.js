@@ -5,6 +5,7 @@ import request from 'supertest';
 import app, { server } from '../..';
 import { Customer } from '../../database/models';
 import { resetDB } from '../../test/helpers';
+import Token from '../../utils/token';
 
 describe('customer controller', () => {
   let customer;
@@ -111,6 +112,21 @@ describe('customer controller', () => {
         .end((error, res) => {
           expect(res.status).toEqual(401);
           expect(res.body.message).toEqual('Invalid email or password');
+          done();
+        });
+    });
+  });
+
+  describe('getCustomerProfile', () => {
+    it('should return the logged in customers profile', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .get('/api/v1/customer')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('customer');
           done();
         });
     });
