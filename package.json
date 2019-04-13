@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "nodemon --watch src --exec babel-node ./src/index.js",
     "test": "jest --no-cache  --detectOpenHandles --runInBand --forceExit",
+    "build": "NODE_ENV=PRODUCTION babel src -d dist --copy-files",
+    "heroku-postbuild": "npm run build",
+    "start": "NODE_ENV=production node dist/index.js",
     "test:watch": "jest --no-cache  --detectOpenHandles --runInBand --watch"
   },
   "repository": {
@@ -25,6 +28,7 @@
   },
   "homepage": "https://github.com/CEOehis/ecommerce-shop#readme",
   "dependencies": {
+    "@babel/polyfill": "^7.4.3",
     "bcrypt": "^3.0.5",
     "body-parser": "^1.18.3",
     "dotenv": "^7.0.0",
