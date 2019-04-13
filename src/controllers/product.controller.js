@@ -1,4 +1,4 @@
-import { Product } from '../database/models';
+import { Product, Department } from '../database/models';
 import Pagination from '../utils/pagination';
 
 /**
@@ -59,6 +59,47 @@ class ProductController {
       return res.status(404).json({
         status: false,
         message: `Product with id ${productId} does not exist`,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * get all departments
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with status and department list
+   * @memberof ProductController
+   */
+  static async getAllDepartments(req, res, next) {
+    try {
+      const departments = await Department.findAll();
+      return res.status(200).json({
+        status: true,
+        departments,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async getDepartment(req, res, next) {
+    const { departmentId } = req.params;
+    try {
+      const department = await Department.findByPk(departmentId);
+      if (department) {
+        return res.status(200).json({
+          status: true,
+          department,
+        });
+      }
+      return res.status(404).json({
+        status: false,
+        message: `Department with id ${departmentId} does not exist`,
       });
     } catch (error) {
       return next(error);

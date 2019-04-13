@@ -41,6 +41,13 @@ app.use(
   })
 );
 
+// catch 404 and forward to error handler
+app.use((req, res, next) => {
+  const err = new Error('Resource does not exist');
+  err.status = 404;
+  next(err);
+});
+
 // error handlers
 const isProduction = process.env.NODE_ENV === 'production';
 // development error handler
