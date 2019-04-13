@@ -1,6 +1,21 @@
 import ErrorHandler from './errorHandler';
 
+/**
+ *
+ *
+ * @class CustomerValidator
+ */
 class CustomerValidator {
+  /**
+   * validata sign up data
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} calls next middleware
+   * @memberof CustomerValidator
+   */
   static validateSignUp(req, res, next) {
     req
       .checkBody('name', 'Name is required')
@@ -31,6 +46,16 @@ class CustomerValidator {
     return next();
   }
 
+  /**
+   * validate login data
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} calls next middleware
+   * @memberof CustomerValidator
+   */
   static validateLogin(req, res, next) {
     req
       .checkBody('email', 'Please provide your registered email')

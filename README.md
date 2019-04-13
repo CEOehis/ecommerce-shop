@@ -91,3 +91,9 @@ Additional query parameters can also be supplied to customize the page size of t
 `GET /api/v1/products?limit=15&page=3`
 
 Authentication required, returns status `200` and a paginated list of items.
+
+`GET /api/v1/products/{product_id}`
+
+Gets the details of an item in the store
+
+Authentication required, returns status `200` and item data.

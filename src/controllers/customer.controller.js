@@ -1,7 +1,22 @@
 import { Customer } from '../database/models';
 import Token from '../utils/token';
 
+/**
+ *
+ *
+ * @class CustomerController
+ */
 class CustomerController {
+  /**
+   * create a customer record
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with status, customer data and access token
+   * @memberof CustomerController
+   */
   static async create(req, res, next) {
     const { email } = req.body;
     const existingUser = await Customer.findOne({
@@ -27,6 +42,16 @@ class CustomerController {
     }
   }
 
+  /**
+   * log in a customer
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with status, and access token
+   * @memberof CustomerController
+   */
   static async login(req, res, next) {
     const { email, password } = req.body;
     try {
@@ -57,6 +82,16 @@ class CustomerController {
     }
   }
 
+  /**
+   * get customer profile data
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with status customer profile data
+   * @memberof CustomerController
+   */
   static async getCustomerProfile(req, res, next) {
     const { customerId } = req;
     try {

@@ -1,7 +1,23 @@
 /* eslint-disable camelcase */
 import Token from '../utils/token';
 
+/**
+ *
+ *
+ * @export
+ * @class Authenticator
+ */
 export default class Authenticator {
+  /**
+   * authenticate a user
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} calls next middleware
+   * @memberof Authenticator
+   */
   static authenticateUser(req, res, next) {
     const { authorization } = req.headers;
     if (!authorization) {
