@@ -31,16 +31,6 @@ app.use(
 
 app.use(router);
 
-app.use(
-  expressWinston.errorLogger({
-    transports: [new winston.transports.Console()],
-    meta: false,
-    expressFormat: true,
-    colorize: true,
-    format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
-  })
-);
-
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = new Error('Resource does not exist');
@@ -48,10 +38,8 @@ app.use((req, res, next) => {
   next(err);
 });
 
-// error handlers
 const isProduction = process.env.NODE_ENV === 'production';
-// development error handler
-// will print stacktrace
+
 if (!isProduction) {
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
@@ -66,8 +54,6 @@ if (!isProduction) {
   });
 }
 
-// production error handler
-// no stacktraces leaked to user
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   // eslint-disable-line no-unused-vars

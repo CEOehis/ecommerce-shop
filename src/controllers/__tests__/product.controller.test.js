@@ -9,7 +9,7 @@ import { resetDB } from '../../test/helpers';
 describe('product controller', () => {
   let product;
   let department;
-  beforeEach(async () => {
+  beforeEach(async done => {
     await resetDB();
     product = await Product.create({
       name: 'New T shirt',
@@ -20,16 +20,20 @@ describe('product controller', () => {
       name: 'Groceries',
       description: 'Daily groceries',
     });
+    done();
   });
 
-  afterEach(async () => {
+  afterEach(async done => {
     await resetDB();
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
+    await resetDB();
     server.close();
     done();
   });
+
   describe('getAllProducts', () => {
     it('should return a list of products', done => {
       request(app)

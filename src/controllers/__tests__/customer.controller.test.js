@@ -9,23 +9,27 @@ import Token from '../../utils/token';
 
 describe('customer controller', () => {
   let customer;
-  beforeEach(async () => {
+  beforeEach(async done => {
     await resetDB();
     customer = await Customer.create({
       name: 'Test user',
       password: 'password',
       email: 'testuser@mail.com',
     });
+    done();
   });
 
-  afterEach(async () => {
+  afterEach(async done => {
     await resetDB();
+    done();
   });
 
-  afterAll(done => {
+  afterAll(async done => {
+    await resetDB();
     server.close();
     done();
   });
+
   describe('create user', () => {
     it('should successfully register a new user', done => {
       request(app)
@@ -127,6 +131,189 @@ describe('customer controller', () => {
         .end((error, res) => {
           expect(res.status).toEqual(200);
           expect(res.body).toHaveProperty('customer');
+          done();
+        });
+    });
+  });
+
+  describe('updateCustomerProfile', () => {
+    it('should update a customers profile', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          name: 'Test user',
+          password: 'password',
+          dayPhone: '09091239898',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('customer');
+          expect(res.body.customer.day_phone).toEqual('09091239898');
+          done();
+        });
+    });
+
+    it('should return an error if customer does not exist', done => {
+      const token = Token.generateToken({ customer_id: 1999, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          name: 'Test user',
+          password: 'password',
+          dayPhone: '09091239898',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(404);
+          expect(res.body.message).toEqual('Customer with id 1999 does not exist');
+          done();
+        });
+    });
+
+    it('should return an error if customer provides invalid password', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          name: 'Test user',
+          password: 'wrontpassword',
+          dayPhone: '09091239898',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(403);
+          expect(res.body.message).toEqual('Invalid password supplied. Unable to update profile');
+          done();
+        });
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('should update a customers password', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/password')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          oldPassword: 'password',
+          newPassword: 'newpassword',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body.message).toEqual('Password successfully updated');
+          done();
+        });
+    });
+
+    it('should return an error if customer does not exist', done => {
+      const token = Token.generateToken({ customer_id: 1999, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/password')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          oldPassword: 'password',
+          newPassword: 'newpassword',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(404);
+          expect(res.body.message).toEqual('Customer with id 1999 does not exist');
+          done();
+        });
+    });
+
+    it('should return an error if customer provides invalid password', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/password')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          oldPassword: 'wrongoldpassword',
+          newPassword: 'newpassword',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(403);
+          expect(res.body.message).toEqual('Invalid password supplied');
+          done();
+        });
+    });
+  });
+
+  describe('updateBillingInfo', () => {
+    it('should update a customers billing information', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/billing-info')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          password: 'password',
+          creditCard: '5399 8888 8888 8888',
+          address1: '58, New place street',
+          address2: 'By old place station',
+          city: 'Kigali',
+          region: 'North-West',
+          postalCode: '88929',
+          country: 'Newark',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('customer');
+          done();
+        });
+    });
+
+    it('should return an error if customer does not exist', done => {
+      const token = Token.generateToken({ customer_id: 1999, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/billing-info')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          password: 'password',
+          creditCard: '5399 8888 8888 8888',
+          address1: '58, New place street',
+          address2: 'By old place station',
+          city: 'Kigali',
+          region: 'North-West',
+          postalCode: '88929',
+          country: 'Newark',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(404);
+          expect(res.body.message).toEqual('Customer with id 1999 does not exist');
+          done();
+        });
+    });
+
+    it('should return an error if customer provides invalid password', done => {
+      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      request(app)
+        .put('/api/v1/customer/billing-info')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          password: 'invalidpassword',
+          creditCard: '5399 8888 8888 8888',
+          address1: '58, New place street',
+          address2: 'By old place station',
+          city: 'Kigali',
+          region: 'North-West',
+          postalCode: '88929',
+          country: 'Newark',
+        })
+        .end((error, res) => {
+          expect(res.status).toEqual(403);
+          expect(res.body.message).toEqual(
+            'Invalid password supplied. Unable to update billing information'
+          );
           done();
         });
     });

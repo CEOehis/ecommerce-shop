@@ -78,9 +78,65 @@ Required fields: `email`, `password`
 
 `GET /api/v1/customer`
 
-Gets a customers profile
+Gets a customer's profile
 
 Authentication required, returns status `200` and the logged in user's profile
+
+`PUT /api/v1/customer`
+
+Updates a customer's profile
+
+Example request body:
+
+```source-json
+{
+  name: 'Test user',
+  password: 'password',
+  dayPhone: '09091239898',
+}
+```
+
+Authentication is required. Returns status `200` and customer profile.
+Required fields: `name` `password`
+
+`PUT /api/v1/customer/password`
+
+Updates a customer's password
+
+Example request body:
+
+```source-json
+{
+  oldPassword: 'password',
+  newPassword: 'newpassword',
+}
+```
+
+Authentication is required. Returns status `200` and success message.
+All fields are required
+
+`PUT /api/v1/customer/billing-info`
+
+Updates a customer's billing info
+
+Example request body:
+
+```source-json
+{
+  password: 'password',
+  address1: '58, New place street',
+  address2: 'By old place station',
+  city: 'Kigali',
+  region: 'North-West',
+  postalCode: '88929',
+  country: 'Newark',
+}
+```
+
+Authentication is required. Returns status `200` and customer profile.
+Required fields: `password`
+
+### Products
 
 `GET /api/v1/products`
 

@@ -69,6 +69,11 @@ module.exports = (sequelize, DataTypes) => {
     return bcrypt.compare(password, this.password);
   };
 
+  Customer.prototype.getSafeDataValues = function getSafeDataValues() {
+    const { password, ...data } = this.dataValues;
+    return data;
+  };
+
   Customer.associate = () => {
     // associations can be defined here
   };
