@@ -6,9 +6,27 @@ import morgan from 'morgan';
 import log from 'fancy-log';
 import expressValidator from 'express-validator';
 import bodyParser from 'body-parser';
+import session from 'express-session';
+import connectSession from 'connect-session-sequelize';
 import router from './routes';
+import { sequelize } from './database/models';
+
+const SequelizeStore = connectSession(session.Store);
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+  expiration: 10 * 1000,
+});
 
 const app = express();
+app.use(
+  session({
+    secret: 'awesome secretive secret',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+sessionStore.sync();
 app.use(morgan('dev'));
 app.use(
   bodyParser.urlencoded({
