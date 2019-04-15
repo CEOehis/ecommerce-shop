@@ -107,4 +107,27 @@ describe('Shopping cart controller', () => {
         });
     });
   });
+
+  describe('getCart', () => {
+    it('should get items from a cart', done => {
+      request(app)
+        .get('/api/v1/cart')
+        .set('Content-Type', 'application/json')
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('cart');
+          done();
+        });
+    });
+    it('should get items from a cart', done => {
+      request(app)
+        .get('/api/v1/cart/somecartid')
+        .set('Content-Type', 'application/json')
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('cart');
+          done();
+        });
+    });
+  });
 });

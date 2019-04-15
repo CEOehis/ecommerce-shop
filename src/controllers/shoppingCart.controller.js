@@ -27,6 +27,15 @@ class ShoppingCartController {
     });
   }
 
+  /**
+   * adds item to a cart with cart_id
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with cart
+   * @memberof ShoppingCartController
+   */
   static async addItemToCart(req, res, next) {
     const { cartId, productId, attributes, quantity } = req.body;
     try {
@@ -71,6 +80,48 @@ class ShoppingCartController {
       return res.status(404).json({
         status: false,
         message: `Product with product id ${productId} does not exist`,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * gets items in a cart, if cartId is supplied in req params it uses that to query
+   * otherwise, it uses the cartId stored in the session
+   * if neither exists it creates a new id and stores it in session
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with cart
+   * @memberof ShoppingCartController
+   */
+  static async getCart(req, res, next) {
+    // if the cartId is not supplied in the query param, use the cart in the session
+    let cartId;
+    if (!req.params.cartId) {
+      // eslint-disable-next-line prefer-destructuring
+      cartId = req.session.cartId;
+      if (!cartId) {
+        // generate a new cartId and set in seession
+        cartId = uniqid();
+        req.session.cartId = cartId;
+      }
+    } else {
+      // eslint-disable-next-line prefer-destructuring
+      cartId = req.params.cartId;
+    }
+    try {
+      const cart = await ShoppingCart.findAll({
+        where: {
+          cart_id: cartId,
+        },
+      });
+
+      return res.status(200).json({
+        status: true,
+        cart,
       });
     } catch (error) {
       return next(error);
