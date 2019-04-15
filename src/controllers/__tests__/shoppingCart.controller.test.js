@@ -130,4 +130,28 @@ describe('Shopping cart controller', () => {
         });
     });
   });
+
+  describe('emptyCart', () => {
+    it('should remove all the items in a cart', done => {
+      request(app)
+        .delete('/api/v1/cart')
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body.message).toEqual('Successfully emptied cart');
+          done();
+        });
+    });
+  });
+
+  describe('removeItemFromCart', () => {
+    it('should remove an item from a cart', done => {
+      request(app)
+        .delete('/api/v1/cart/1')
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body.message).toEqual('Successfully removed item from cart');
+          done();
+        });
+    });
+  });
 });

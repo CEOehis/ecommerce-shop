@@ -127,6 +127,65 @@ class ShoppingCartController {
       return next(error);
     }
   }
+
+  /**
+   * removes all items in a cart
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with cart
+   * @memberof ShoppingCartController
+   */
+  static async emptyCart(req, res, next) {
+    const { cartId } = req.session;
+    try {
+      await ShoppingCart.destroy({
+        where: {
+          cart_id: cartId || '',
+        },
+      });
+
+      return res.status(200).json({
+        status: 200,
+        message: 'Successfully emptied cart',
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * remove single item from cart
+   * cart id is obtained from current session
+   *
+   * @static
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   * @returns
+   * @memberof ShoppingCartController
+   */
+  static async removeItemFromCart(req, res, next) {
+    const { cartId } = req.session;
+    const { itemId } = req.params;
+
+    try {
+      await ShoppingCart.destroy({
+        where: {
+          cart_id: cartId || '',
+          item_id: itemId,
+        },
+      });
+
+      return res.status(200).json({
+        status: 200,
+        message: 'Successfully removed item from cart',
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
 }
 
 export default ShoppingCartController;
