@@ -14,6 +14,7 @@ module.exports = {
     database: process.env.TEST_DB_NAME,
     host: process.env.TEST_DB_HOST,
     dialect: 'mysql',
+    logging: true,
   },
   production: {
     use_env_variable: 'DATABASE_URL',

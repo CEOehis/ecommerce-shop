@@ -4,21 +4,18 @@ import request from 'supertest';
 
 import app, { server } from '../..';
 import { Product, ShoppingCart } from '../../database/models';
-import { resetDB } from '../../test/helpers';
+import truncate from '../../test/helpers';
 
 describe('Shopping cart controller', () => {
   beforeEach(async done => {
-    await resetDB();
     done();
   });
 
   afterEach(async done => {
-    await resetDB();
     done();
   });
 
   afterAll(async done => {
-    await resetDB();
     await server.close();
     done();
   });
@@ -40,6 +37,7 @@ describe('Shopping cart controller', () => {
     let product;
     let shoppingCart;
     beforeEach(async done => {
+      await truncate();
       product = await Product.create({
         name: 'My product',
         description: 'The product description',

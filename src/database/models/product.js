@@ -48,8 +48,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Product.associate = () => {
-    // define associations here
+  Product.associate = ({ Category, AttributeValue }) => {
+    Product.belongsToMany(Category, {
+      through: 'ProductCategory',
+      foreignKey: 'product_id',
+    });
+
+    Product.belongsToMany(AttributeValue, {
+      through: 'ProductAttribute',
+      as: 'attributes',
+      foreignKey: 'product_id',
+    });
   };
 
   return Product;

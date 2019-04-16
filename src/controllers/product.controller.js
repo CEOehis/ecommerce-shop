@@ -1,4 +1,4 @@
-import { Product, Department } from '../database/models';
+import { Product, Department, AttributeValue, Attribute } from '../database/models';
 import Pagination from '../utils/pagination';
 
 /**
@@ -49,7 +49,24 @@ class ProductController {
   static async getProduct(req, res, next) {
     const { productId } = req.params;
     try {
-      const product = await Product.findByPk(productId);
+      const product = await Product.findByPk(productId, {
+        include: [
+          {
+            model: AttributeValue,
+            as: 'attributes',
+            attributes: ['value'],
+            through: {
+              attributes: [],
+            },
+            include: [
+              {
+                model: Attribute,
+                as: 'attribute_type',
+              },
+            ],
+          },
+        ],
+      });
       if (product) {
         return res.status(200).json({
           status: true,

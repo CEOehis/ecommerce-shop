@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
-  const Department = sequelize.define(
-    'Department',
+  const Attribute = sequelize.define(
+    'Attribute',
     {
-      department_id: {
+      attribute_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -14,19 +14,18 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
-      description: DataTypes.STRING(1000),
     },
     {
       timestamps: false,
-      tableName: 'department',
+      tableName: 'attribute',
     }
   );
 
-  Department.associate = ({ Category }) => {
-    Department.hasMany(Category, {
-      foreignKey: 'department_id',
+  Attribute.associate = ({ AttributeValue }) => {
+    Attribute.hasMany(AttributeValue, {
+      foreignKey: 'attribute_id',
     });
   };
 
-  return Department;
+  return Attribute;
 };

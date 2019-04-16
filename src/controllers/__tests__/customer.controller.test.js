@@ -4,13 +4,13 @@ import request from 'supertest';
 
 import app, { server } from '../..';
 import { Customer } from '../../database/models';
-import { resetDB } from '../../test/helpers';
 import Token from '../../utils/token';
+import truncate from '../../test/helpers';
 
 describe('customer controller', () => {
   let customer;
   beforeEach(async done => {
-    await resetDB();
+    await truncate();
     customer = await Customer.create({
       name: 'Test user',
       password: 'password',
@@ -19,13 +19,11 @@ describe('customer controller', () => {
     done();
   });
 
-  afterEach(async done => {
-    await resetDB();
-    done();
-  });
+  // afterEach(async done => {
+  //   done();
+  // });
 
   afterAll(async done => {
-    await resetDB();
     server.close();
     done();
   });
@@ -138,7 +136,7 @@ describe('customer controller', () => {
 
   describe('updateCustomerProfile', () => {
     it('should update a customers profile', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer')
         .set('Content-Type', 'application/json')
@@ -175,7 +173,7 @@ describe('customer controller', () => {
     });
 
     it('should return an error if customer provides invalid password', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer')
         .set('Content-Type', 'application/json')
@@ -195,7 +193,7 @@ describe('customer controller', () => {
 
   describe('updatePassword', () => {
     it('should update a customers password', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer/password')
         .set('Content-Type', 'application/json')
@@ -229,7 +227,7 @@ describe('customer controller', () => {
     });
 
     it('should return an error if customer provides invalid password', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer/password')
         .set('Content-Type', 'application/json')
@@ -248,7 +246,7 @@ describe('customer controller', () => {
 
   describe('updateBillingInfo', () => {
     it('should update a customers billing information', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer/billing-info')
         .set('Content-Type', 'application/json')
@@ -294,7 +292,7 @@ describe('customer controller', () => {
     });
 
     it('should return an error if customer provides invalid password', done => {
-      const token = Token.generateToken({ customer_id: 1, name: 'Test user' });
+      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
       request(app)
         .put('/api/v1/customer/billing-info')
         .set('Content-Type', 'application/json')

@@ -4,13 +4,13 @@ import request from 'supertest';
 
 import app, { server } from '../..';
 import { Product, Department } from '../../database/models';
-import { resetDB } from '../../test/helpers';
+import truncate from '../../test/helpers';
 
 describe('product controller', () => {
   let product;
   let department;
   beforeEach(async done => {
-    await resetDB();
+    await truncate();
     product = await Product.create({
       name: 'New T shirt',
       description: 'Simple T shirt',
@@ -23,13 +23,11 @@ describe('product controller', () => {
     done();
   });
 
-  afterEach(async done => {
-    await resetDB();
-    done();
-  });
+  // afterEach(async done => {
+  //   done();
+  // });
 
   afterAll(async done => {
-    await resetDB();
     server.close();
     done();
   });
