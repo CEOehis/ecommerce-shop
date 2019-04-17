@@ -35,7 +35,31 @@ describe('product controller', () => {
   describe('getAllProducts', () => {
     it('should return a list of products', done => {
       request(app)
-        .get('/api/v1/products')
+        .get('/api/v1/products?page=3&search=the&limit=30')
+        .set('Content-Type', 'application/json')
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          done();
+        });
+    });
+  });
+
+  describe('getProductsByCategory', () => {
+    it('should return a list of products belonging to a category', done => {
+      request(app)
+        .get('/api/v1/products/in-category/1?page=1&limit=15')
+        .set('Content-Type', 'application/json')
+        .end((error, res) => {
+          expect(res.status).toEqual(200);
+          done();
+        });
+    });
+  });
+
+  describe('getProductsByDepartment', () => {
+    it('should return a list of products belonging to a category', done => {
+      request(app)
+        .get('/api/v1/products/in-department/1?page=3&limit=15')
         .set('Content-Type', 'application/json')
         .end((error, res) => {
           expect(res.status).toEqual(200);
