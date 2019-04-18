@@ -12,6 +12,7 @@ const truncateTable = modelName => {
     truncate: {
       cascade: true,
     },
+    logging: false,
   });
 };
 

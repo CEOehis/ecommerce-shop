@@ -74,12 +74,11 @@ module.exports = (sequelize, DataTypes) => {
     return data;
   };
 
-  // Customer.associate = models => {
-  //   // associations can be defined here
-  //   Customer.belongsTo(models.ShippingRegion, {
-  //     foreignKey: 'shipping_region_id',
-  //     onDelete: 'CASCADE',
-  //   });
-  // };
+  Customer.associate = ({ Order }) => {
+    // associations can be defined here
+    Customer.hasMany(Order, {
+      foreignKey: 'customer_id',
+    });
+  };
   return Customer;
 };

@@ -3,15 +3,58 @@ import '@babel/polyfill';
 import request from 'supertest';
 
 import app, { server } from '../..';
-import { Product, ShoppingCart } from '../../database/models';
+import { Product, ShoppingCart, Customer, ShippingRegion, Shipping } from '../../database/models';
+import Token from '../../utils/token';
 import truncate from '../../test/helpers';
 
 describe('Shopping cart controller', () => {
+  let customer;
   beforeEach(async done => {
-    done();
-  });
+    await truncate();
+    await ShippingRegion.bulkCreate([
+      {
+        shipping_region_id: 1,
+        shipping_region: 'Please Select',
+      },
+      {
+        shipping_region_id: 2,
+        shipping_region: 'US / Canada',
+      },
+      {
+        shipping_region_id: 3,
+        shipping_region: 'Europe',
+      },
+      {
+        shipping_region_id: 4,
+        shipping_region: 'Rest of World',
+      },
+    ]);
 
-  afterEach(async done => {
+    await Shipping.bulkCreate([
+      {
+        shipping_id: 1,
+        shipping_type: 'Next Day Delivery ($20)',
+        shipping_cost: '20.00',
+        shipping_region_id: 2,
+      },
+      {
+        shipping_id: 2,
+        shipping_type: '3-4 Days ($10)',
+        shipping_cost: '10.00',
+        shipping_region_id: 2,
+      },
+      {
+        shipping_id: 3,
+        shipping_type: '7 Days ($5)',
+        shipping_cost: '5.00',
+        shipping_region_id: 2,
+      },
+    ]);
+    customer = await Customer.create({
+      name: 'Buying User',
+      password: 'password',
+      email: 'bu@mail.com',
+    });
     done();
   });
 
@@ -148,6 +191,70 @@ describe('Shopping cart controller', () => {
         .end((err, res) => {
           expect(res.status).toEqual(200);
           expect(res.body.message).toEqual('Successfully removed item from cart');
+          done();
+        });
+    });
+  });
+
+  describe('createOrder', () => {
+    const agent = request.agent(app);
+    it('should save cookies', done => {
+      agent.get('/api/v1/cart/generate').end(() => {
+        done();
+      });
+    });
+
+    it('should create an order', done => {
+      const token = Token.generateToken({
+        customer_id: customer.customer_id,
+        name: 'Buying User',
+      });
+      agent
+        .post('/api/v1/orders')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          shippingId: 2,
+        })
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body.message).toEqual('Order created successfully');
+          done();
+        });
+    });
+  });
+
+  describe('getOrderSummary', () => {
+    it('should return not found if order does not exist', done => {
+      const token = Token.generateToken({
+        customer_id: customer.customer_id,
+        name: 'Buying User',
+      });
+      request(app)
+        .get('/api/v1/orders/999')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .end((err, res) => {
+          expect(res.status).toEqual(404);
+          expect(res.body.message).toEqual('Order with order id 999 does not exist');
+          done();
+        });
+    });
+  });
+
+  describe('getCustomerOrders', () => {
+    it('should return a customers orders', done => {
+      const token = Token.generateToken({
+        customer_id: customer.customer_id,
+        name: 'Buying User',
+      });
+      request(app)
+        .get('/api/v1/orders/999')
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${token}`)
+        .end((err, res) => {
+          expect(res.status).toEqual(200);
+          expect(res.body).toHaveProperty('orders');
           done();
         });
     });

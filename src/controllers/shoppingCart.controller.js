@@ -1,5 +1,5 @@
 import uniqid from 'uniqid';
-import { ShoppingCart, Product } from '../database/models';
+import { ShoppingCart, Product, Shipping, Order, OrderDetail } from '../database/models';
 /**
  *
  *
@@ -160,10 +160,9 @@ class ShoppingCartController {
    * cart id is obtained from current session
    *
    * @static
-   * @param {*} req
-   * @param {*} res
-   * @param {*} next
-   * @returns
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with message
    * @memberof ShoppingCartController
    */
   static async removeItemFromCart(req, res, next) {
@@ -181,6 +180,147 @@ class ShoppingCartController {
       return res.status(200).json({
         status: 200,
         message: 'Successfully removed item from cart',
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   * create an order from a cart
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with created order
+   * @memberof ShoppingCartController
+   */
+  static async createOrder(req, res, next) {
+    const { shippingId } = req.body;
+    const { cartId } = req.session;
+    try {
+      const shippingType = await Shipping.findByPk(shippingId);
+      if (shippingType) {
+        const cart = await ShoppingCart.findAll({
+          where: {
+            cart_id: cartId,
+          },
+          include: [
+            {
+              model: Product,
+            },
+          ],
+        });
+        let totalPrice = 0;
+        let totalDiscount = 0;
+        cart.forEach(item => {
+          totalPrice += parseFloat(item.quantity * item.Product.price);
+          totalDiscount += parseFloat(item.quantity * item.Product.discounted_price);
+        });
+
+        const finalPrice = totalPrice + parseFloat(shippingType.shipping_cost) - totalDiscount;
+
+        const order = await Order.create({
+          total_amount: finalPrice,
+          status: 1,
+          comments: 'order for customer',
+          customer_id: req.customerId,
+          auth_code: 'TURING',
+          reference: cartId,
+          shipping_id: shippingId,
+        });
+
+        const orderDetails = [];
+        cart.forEach(item => {
+          // eslint-disable-next-line camelcase
+          const { item_id, ...data } = item.dataValues;
+          orderDetails.push({
+            order_id: order.order_id,
+            ...data,
+            product_name: data.Product.name,
+            unit_cost: data.Product.price,
+          });
+        });
+
+        await OrderDetail.bulkCreate(orderDetails);
+        return res.status(200).json({
+          status: true,
+          order,
+          message: 'Order created successfully',
+        });
+      }
+      return res.status(400).json({
+        status: false,
+        message: 'Invalid shipping type provided',
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   *
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with order summary
+   * @memberof ShoppingCartController
+   */
+  static async getOrderSummary(req, res, next) {
+    const { orderId } = req.params;
+    const { customerId } = req;
+    try {
+      const order = await Order.findOne({
+        where: {
+          order_id: orderId,
+          customer_id: customerId,
+        },
+        attributes: {
+          exclude: ['auth_code'],
+        },
+        include: [
+          {
+            model: OrderDetail,
+            as: 'orderItems',
+          },
+        ],
+      });
+      if (order) {
+        return res.status(200).json({
+          status: true,
+          order,
+        });
+      }
+      return res.status(404).json({
+        status: false,
+        message: `Order with order id ${orderId} does not exist`,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
+   *
+   *
+   * @static
+   * @param {obj} req express request object
+   * @param {obj} res express response object
+   * @returns {json} returns json response with customer's orders
+   * @memberof ShoppingCartController
+   */
+  static async getCustomerOrders(req, res, next) {
+    const { customerId } = req;
+    try {
+      const orders = await Order.findAll({
+        where: {
+          customer_id: customerId,
+        },
+      });
+      return res.status(200).json({
+        status: true,
+        orders,
       });
     } catch (error) {
       return next(error);
