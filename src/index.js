@@ -8,13 +8,15 @@ import expressValidator from 'express-validator';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import connectSession from 'connect-session-sequelize';
+import compression from 'compression';
+import helmet from 'helmet';
+import cors from 'cors';
 import router from './routes';
 import { sequelize } from './database/models';
 
 const SequelizeStore = connectSession(session.Store);
 const sessionStore = new SequelizeStore({
   db: sequelize,
-  expiration: 10 * 1000,
 });
 
 const app = express();
@@ -27,7 +29,13 @@ app.use(
   })
 );
 sessionStore.sync();
+// compression and header security middleware
+app.use(compression());
+app.use(helmet());
+app.use(cors());
+
 app.use(morgan('dev'));
+
 app.use(
   bodyParser.urlencoded({
     limit: '50mb',
