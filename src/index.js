@@ -47,6 +47,8 @@ app.use(
   })
 );
 
+app.use('/stripe', express.static(`${__dirname}/public`));
+
 app.use(router);
 
 // catch 404 and forward to error handler

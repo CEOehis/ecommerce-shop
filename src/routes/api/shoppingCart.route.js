@@ -16,5 +16,6 @@ router.get(
   Authenticator.authenticateUser,
   ShoppingCartController.getOrderSummary
 );
+router.post('/stripe', Authenticator.authenticateUser, ShoppingCartController.processStripePayment);
 
 export default router;

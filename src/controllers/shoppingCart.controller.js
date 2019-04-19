@@ -1,4 +1,5 @@
 import uniqid from 'uniqid';
+import stripe from 'stripe';
 import { ShoppingCart, Product, Shipping, Order, OrderDetail } from '../database/models';
 /**
  *
@@ -222,7 +223,6 @@ class ShoppingCartController {
 
         const order = await Order.create({
           total_amount: finalPrice,
-          status: 1,
           comments: 'order for customer',
           customer_id: req.customerId,
           auth_code: 'TURING',
@@ -321,6 +321,61 @@ class ShoppingCartController {
       return res.status(200).json({
         status: true,
         orders,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async processStripePayment(req, res, next) {
+    const { email, stripeToken, orderId } = req.body;
+    const { customerId } = req;
+    try {
+      const order = await Order.findOne({
+        where: {
+          order_id: orderId,
+          customer_id: customerId,
+          status: 0,
+        },
+      });
+
+      if (order) {
+        const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
+
+        const customer = await stripeInstance.customers.create({
+          email,
+          card: stripeToken,
+        });
+
+        const charge = await stripeInstance.charges.create({
+          amount: order.total_amount * 100,
+          description: order.comments,
+          currency: 'usd',
+          customer: customer.id,
+        });
+
+        // empty out shopping cart
+        await ShoppingCart.destroy({
+          where: {
+            cart_id: order.reference,
+          },
+        });
+
+        // update order status
+        await order.update({
+          status: 1,
+          reference: charge.id,
+        });
+
+        return res.status(201).json({
+          status: true,
+          charge,
+          message: `Order paid successfully`,
+        });
+      }
+      return res.status(404).json({
+        status: false,
+        message: `Order with order id ${orderId} does not exist`,
       });
     } catch (error) {
       return next(error);
