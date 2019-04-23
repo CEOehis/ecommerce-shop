@@ -32,7 +32,12 @@ sessionStore.sync();
 // compression and header security middleware
 app.use(compression());
 app.use(helmet());
-app.use(cors());
+const corsOptions = {
+  credentials: true,
+  origin: 'http://localhost:3000',
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(cors(corsOptions));
 
 app.use(morgan('dev'));
 

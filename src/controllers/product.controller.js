@@ -64,6 +64,31 @@ class ProductController {
   }
 
   /**
+   * get featured products
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with status and product data
+   * @memberof ProductController
+   */
+  static async getFeaturedProducts(req, res, next) {
+    try {
+      const featuredProducts = await Product.findAll({
+        order: [[Sequelize.literal('RAND()')]],
+        limit: 3,
+      });
+      return res.status(200).json({
+        status: true,
+        featuredProducts,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  /**
    * get all products by caetgory
    *
    * @static

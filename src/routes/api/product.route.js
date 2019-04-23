@@ -17,5 +17,6 @@ router.get(
 );
 router.get('/departments', redisCache, ProductController.getAllDepartments);
 router.get('/departments/:departmentId', redisCache, ProductController.getDepartment);
+router.get('/featured', ProductController.getFeaturedProducts);
 
 export default router;
