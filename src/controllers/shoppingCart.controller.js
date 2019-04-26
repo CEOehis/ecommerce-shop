@@ -21,6 +21,7 @@ class ShoppingCartController {
     if (!cartId) {
       cartId = uniqid();
       req.session.cartId = cartId;
+      res.cookie('cartId', cartId);
     }
     return res.status(200).json({
       status: true,

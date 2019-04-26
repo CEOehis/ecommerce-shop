@@ -14,6 +14,7 @@ import cors from 'cors';
 import router from './routes';
 import { sequelize } from './database/models';
 
+const isProduction = process.env.NODE_ENV === 'production';
 const SequelizeStore = connectSession(session.Store);
 const sessionStore = new SequelizeStore({
   db: sequelize,
@@ -26,6 +27,10 @@ app.use(
     store: sessionStore,
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      domain: 'localhost',
+      httpOnly: isProduction,
+    },
   })
 );
 sessionStore.sync();
@@ -70,8 +75,6 @@ app.use((req, res, next) => {
   err.status = 404;
   next(err);
 });
-
-const isProduction = process.env.NODE_ENV === 'production';
 
 if (!isProduction) {
   // eslint-disable-next-line no-unused-vars
