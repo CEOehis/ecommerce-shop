@@ -62,21 +62,12 @@ class ShoppingCartController {
         if (!created) {
           // if it already existed, then just bump the quantity
           await item.update({
-            quantity: quantity || item.quantity + 1,
+            quantity: quantity ? item.quantity + quantity : item.quantity,
             attributes: attributes || item.attributes,
           });
         }
 
-        const cart = await ShoppingCart.findAll({
-          where: {
-            cart_id: item.cart_id,
-          },
-        });
-
-        return res.status(200).json({
-          status: true,
-          cart,
-        });
+        return ShoppingCartController.getCart(req, res, next);
       }
       // product does not exist return error message
       return res.status(404).json({
@@ -119,6 +110,11 @@ class ShoppingCartController {
         where: {
           cart_id: cartId,
         },
+        include: [
+          {
+            model: Product,
+          },
+        ],
       });
 
       return res.status(200).json({
