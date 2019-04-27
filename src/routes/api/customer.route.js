@@ -21,7 +21,6 @@ router.put(
 );
 router.put(
   '/customer/billing-info',
-  CustomerValidator.validateUpdateBillingInfo,
   Authenticator.authenticateUser,
   CustomerController.updateBillingInfo
 );

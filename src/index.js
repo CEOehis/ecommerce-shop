@@ -26,7 +26,7 @@ app.use(
     secret: 'awesome secretive secret',
     store: sessionStore,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       domain: 'localhost',
       httpOnly: isProduction,

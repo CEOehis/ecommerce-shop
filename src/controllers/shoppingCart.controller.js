@@ -100,6 +100,7 @@ class ShoppingCartController {
         // generate a new cartId and set in seession
         cartId = uniqid();
         req.session.cartId = cartId;
+        res.cookie('cartId', cartId);
       }
     } else {
       // eslint-disable-next-line prefer-destructuring
@@ -209,17 +210,15 @@ class ShoppingCartController {
             },
           ],
         });
-        let totalPrice = 0;
-        let totalDiscount = 0;
-        cart.forEach(item => {
-          totalPrice += parseFloat(item.quantity * item.Product.price);
-          totalDiscount += parseFloat(item.quantity * item.Product.discounted_price);
-        });
 
-        const finalPrice = totalPrice + parseFloat(shippingType.shipping_cost) - totalDiscount;
+        const discountedTotal = cart.reduce((acc, curr) => {
+          const price = Number(curr.Product.price);
+          const discountedPrice = Number(curr.Product.discounted_price);
+          return Number(acc) + (discountedPrice || price) * curr.quantity;
+        }, 0);
 
         const order = await Order.create({
-          total_amount: finalPrice,
+          total_amount: discountedTotal,
           comments: 'order for customer',
           customer_id: req.customerId,
           auth_code: 'TURING',
@@ -345,7 +344,7 @@ class ShoppingCartController {
         });
 
         const charge = await stripeInstance.charges.create({
-          amount: order.total_amount * 100,
+          amount: (order.total_amount * 100).toFixed(),
           description: order.comments,
           currency: 'usd',
           customer: customer.id,
@@ -363,6 +362,9 @@ class ShoppingCartController {
           status: 1,
           reference: charge.id,
         });
+
+        // in the charge object, there is a receipt url
+        // we can send this in the body of the mail and order summary
 
         return res.status(201).json({
           status: true,

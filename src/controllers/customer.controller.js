@@ -216,7 +216,6 @@ class CustomerController {
   static async updateBillingInfo(req, res, next) {
     const { customerId } = req;
     const {
-      password,
       creditCard,
       address1,
       address2,
@@ -225,32 +224,25 @@ class CustomerController {
       postalCode,
       country,
       shippingRegionId,
+      name,
     } = req.body;
     try {
       const customer = await Customer.findByPk(customerId);
       if (customer) {
-        // make sure the updating is authorised by thee user
-        const isValid = await customer.validatePassword(password);
-        if (isValid) {
-          // if password supplied is correct then we proceed
-          const updatedCustomer = await customer.update({
-            credit_card: creditCard || customer.credit_card,
-            address_1: address1 || customer.address_1,
-            address_2: address2 || customer.address_2,
-            city: city || customer.city,
-            region: region || customer.region,
-            postal_code: postalCode || customer.postal_code,
-            country: country || customer.country,
-            shipping_region_id: shippingRegionId || customer.shipping_region_id,
-          });
-          return res.status(200).json({
-            status: true,
-            customer: updatedCustomer.getSafeDataValues(),
-          });
-        }
-        return res.status(403).json({
-          status: false,
-          message: 'Invalid password supplied. Unable to update billing information',
+        const updatedCustomer = await customer.update({
+          name: name || customer.name,
+          credit_card: creditCard || customer.credit_card,
+          address_1: address1 || customer.address_1,
+          address_2: address2 || customer.address_2,
+          city: city || customer.city,
+          region: region || customer.region,
+          postal_code: postalCode || customer.postal_code,
+          country: country || customer.country,
+          shipping_region_id: shippingRegionId || customer.shipping_region_id,
+        });
+        return res.status(200).json({
+          status: true,
+          customer: updatedCustomer.getSafeDataValues(),
         });
       }
       return res.status(404).json({

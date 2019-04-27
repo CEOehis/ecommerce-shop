@@ -290,30 +290,5 @@ describe('customer controller', () => {
           done();
         });
     });
-
-    it('should return an error if customer provides invalid password', done => {
-      const token = Token.generateToken({ customer_id: customer.customer_id, name: 'Test user' });
-      request(app)
-        .put('/api/v1/customer/billing-info')
-        .set('Content-Type', 'application/json')
-        .set('Authorization', `Bearer ${token}`)
-        .send({
-          password: 'invalidpassword',
-          creditCard: '5399 8888 8888 8888',
-          address1: '58, New place street',
-          address2: 'By old place station',
-          city: 'Kigali',
-          region: 'North-West',
-          postalCode: '88929',
-          country: 'Newark',
-        })
-        .end((error, res) => {
-          expect(res.status).toEqual(403);
-          expect(res.body.message).toEqual(
-            'Invalid password supplied. Unable to update billing information'
-          );
-          done();
-        });
-    });
   });
 });
