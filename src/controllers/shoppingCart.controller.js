@@ -1,6 +1,7 @@
 import uniqid from 'uniqid';
 import stripe from 'stripe';
 import { ShoppingCart, Product, Shipping, Order, OrderDetail } from '../database/models';
+import MailingController from './mailing.controller';
 /**
  *
  *
@@ -365,6 +366,7 @@ class ShoppingCartController {
 
         // in the charge object, there is a receipt url
         // we can send this in the body of the mail and order summary
+        MailingController.sendMail(email, charge.receipt_url);
 
         return res.status(201).json({
           status: true,
