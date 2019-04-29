@@ -43,7 +43,7 @@ In order to install and run this project locally, you would need to have the fol
 git clone git@github.com/CEOehis/ecommerce-shop.git
 ```
 
-* Navigatet to the project directory
+* Navigate to the project directory
 
 ```sh
 cd path/to/ecommerce-shop

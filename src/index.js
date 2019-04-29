@@ -70,13 +70,7 @@ app.use(
 );
 
 app.use('/stripe', express.static(`${__dirname}/public`));
-app.use((req, res, next) => {
-  // console.log('session', Object.keys(res));
-  // console.log('session', Object.keys(res.req));
-  console.log('res', res.req.session);
-  console.log('res session id', res.req.sessionID);
-  next();
-});
+
 app.use(router);
 
 // catch 404 and forward to error handler
