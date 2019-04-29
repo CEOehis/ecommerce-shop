@@ -40,7 +40,8 @@ class ShoppingCartController {
    * @memberof ShoppingCartController
    */
   static async addItemToCart(req, res, next) {
-    const { cartId, productId, attributes, quantity } = req.body;
+    const { productId, attributes, quantity } = req.body;
+    const { cartId } = req.session;
     try {
       // first check if product exists
       const product = await Product.findByPk(productId);

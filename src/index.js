@@ -21,28 +21,32 @@ const sessionStore = new SequelizeStore({
 });
 
 const app = express();
-app.use(
-  session({
-    secret: 'awesome secretive secret',
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      domain: 'localhost',
-      httpOnly: isProduction,
-    },
-  })
-);
+const corsOptions = {
+  credentials: true,
+  origin: ['http://localhost:3000', 'https://ecommerce-turing-client.herokuapp.com'],
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use(cors(corsOptions));
+
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: false,
+  },
+};
+if (isProduction) {
+  app.set('trust proxy', 1); // trust first proxy
+  sessionConfig.cookie.secure = true;
+}
+
+app.use(session(sessionConfig));
 sessionStore.sync();
 // compression and header security middleware
 app.use(compression());
 app.use(helmet());
-const corsOptions = {
-  credentials: true,
-  origin: 'http://localhost:3000',
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
-app.use(cors(corsOptions));
 
 app.use(morgan('dev'));
 
@@ -66,7 +70,13 @@ app.use(
 );
 
 app.use('/stripe', express.static(`${__dirname}/public`));
-
+app.use((req, res, next) => {
+  // console.log('session', Object.keys(res));
+  // console.log('session', Object.keys(res.req));
+  console.log('res', res.req.session);
+  console.log('res session id', res.req.sessionID);
+  next();
+});
 app.use(router);
 
 // catch 404 and forward to error handler
