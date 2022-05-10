@@ -18,6 +18,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const SequelizeStore = connectSession(session.Store);
 const sessionStore = new SequelizeStore({
   db: sequelize,
+  modelKey: 'Session',
 });
 
 const app = express();
@@ -28,6 +29,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+/**
+ * @type {import('express-session').SessionOptions}
+ */
 const sessionConfig = {
   secret: process.env.SESSION_SECRET,
   store: sessionStore,
@@ -37,13 +41,16 @@ const sessionConfig = {
     httpOnly: false,
   },
 };
+
 if (isProduction) {
   app.set('trust proxy', 1); // trust first proxy
   sessionConfig.cookie.secure = true;
+  sessionConfig.cookie.sameSite = 'none';
 }
 
 app.use(session(sessionConfig));
 sessionStore.sync();
+
 // compression and header security middleware
 app.use(compression());
 app.use(helmet());

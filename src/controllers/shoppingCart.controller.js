@@ -2,6 +2,7 @@ import uniqid from 'uniqid';
 import stripe from 'stripe';
 import { ShoppingCart, Product, Shipping, Order, OrderDetail } from '../database/models';
 import MailingController from './mailing.controller';
+
 /**
  *
  *
@@ -22,7 +23,6 @@ class ShoppingCartController {
     if (!cartId) {
       cartId = uniqid();
       req.session.cartId = cartId;
-      res.cookie('cartId', cartId);
     }
     return res.status(200).json({
       status: true,
@@ -102,7 +102,6 @@ class ShoppingCartController {
         // generate a new cartId and set in seession
         cartId = uniqid();
         req.session.cartId = cartId;
-        res.cookie('cartId', cartId);
       }
     } else {
       // eslint-disable-next-line prefer-destructuring
